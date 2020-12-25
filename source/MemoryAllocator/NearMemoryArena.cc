@@ -29,6 +29,10 @@ static addr_t search_near_blank_page(addr_t pos, size_t alloc_range) {
    */
 
   addr_t resultPageAddr = 0, assumePageAddr = min_page_addr;
+  if (pos <= alloc_range) {
+    // incase out of range
+    assumePageAddr = max_page_addr;
+  }
 
   // check first region
   addr_t first_region_start = (addr_t)process_memory_layout[0].address;

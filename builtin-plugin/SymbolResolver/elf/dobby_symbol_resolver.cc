@@ -118,8 +118,11 @@ void *resolve_elf_internal_symbol(const char *library_name, const char *symbol_n
     if (symtab && strtab)
       result = iterate_symbol_table(symbol_name, symtab, strtab, count);
 
-    if (result)
-      result = (void *)((addr_t)result + (addr_t)module.load_address);
+    if (result) {
+      ElfW(Phdr) *program_mem = (ElfW(Phdr) *)((ElfW(Ehdr) *)file_mem + 1);
+      addr_t ehdrSlide        = (addr_t)program_mem->p_vaddr - sizeof(ElfW(Ehdr));
+      result                  = (void *)((addr_t)result - ehdrSlide + (addr_t)module.load_address);
+    }
 
     if (file_mem)
       file_unmap(file_mem, file_mem_size);
@@ -142,8 +145,11 @@ void *resolve_elf_internal_symbol(const char *library_name, const char *symbol_n
       if (symtab && strtab)
         result = iterate_symbol_table(symbol_name, symtab, strtab, count);
 
-      if (result)
-        result = (void *)((addr_t)result + (addr_t)module.load_address);
+      if (result) {
+        ElfW(Phdr) *program_mem = (ElfW(Phdr) *)((ElfW(Ehdr) *)file_mem + 1);
+        addr_t ehdrSlide        = (addr_t)program_mem->p_vaddr - sizeof(ElfW(Ehdr));
+        result                  = (void *)((addr_t)result - ehdrSlide + (addr_t)module.load_address);
+      }
 
       if (file_mem)
         file_unmap(file_mem, file_mem_size);
